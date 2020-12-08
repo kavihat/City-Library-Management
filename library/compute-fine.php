@@ -3,22 +3,24 @@ session_start();
 error_reporting(0);
 include('includes/config.php');
 if(strlen($_SESSION['login'])==0)
-    {   
-header('location:index.php');
+{
+    header('location:index.php');
 }
 else{ 
-if(isset($_GET['del']))
-{
-$id=$_GET['del'];
-$sql = "delete from tblbooks  WHERE id=:id";
-$query = $dbh->prepare($sql);
-$query -> bindParam(':id',$id, PDO::PARAM_STR);
-$query -> execute();
-$_SESSION['delmsg']="Category deleted scuccessfully ";
-header('location:manage-books.php');
-
-}
-
+    if(isset($_GET['del']))
+    {
+        $id=$_GET['del'];
+        $sql = "delete from tblbooks  WHERE id=:id";
+        $query = $dbh->prepare($sql);
+        $query -> bindParam(':id',$id, PDO::PARAM_STR);
+        $query -> execute();
+        $_SESSION['delmsg']="Category deleted scuccessfully ";
+        header('location:manage-books.php');
+    }
+    if(isset($_GET['return']))
+    {
+        $sql = "delete from borrows where borrows.BorrowId=".$_GET['return'];
+    }
 
     ?>
 <!DOCTYPE html>
@@ -72,7 +74,7 @@ header('location:manage-books.php');
 											<th>Lib ID </th>
                                             <th>Borrowed Date</th>
                                             <th>Return Date</th>
-                                            <th>Fine in(USD)</th>
+                                            <th>Fine (USD)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -91,32 +93,7 @@ $cnt=1;
 if($query->rowCount() > 0)
 {
 foreach($results as $result)
-{ 
-
-/*
-$fine = 0;
-$temp =0;
-$today_date = date("Y-m-d");
-$borrow_date = date(strtotime($row['BorrowDate']));
-$i=20;
-echo $due_by = strtotime(date("Y-m-d", strtotime($borrow_date)) . " +".$i."days");
-
-if($today_date > $due_by){
-	
-    if (strtotime($row['ReturnDate']) == '0000-00-00'){
-		$temp = $today_date->diff($due_by);
-        $fine = $temp * 0.10;
-       }
-	
-    else {
-	 $temp = $row['ReturnDate']->diff($due_by); 
-    $fine = $temp * 0.10;
-     }
-}
-else {
-	$fine = 0;
-}
-*/
+{
 
               ?>                                      
                                         <tr class="odd gradeX">
@@ -129,9 +106,8 @@ else {
                                             <td class="center"><?php if($result->ReturnDate=="")
                                             {?>
                                             <span style="color:red">
-                                             <?php   echo htmlentities("Not Return Yet");
-														$fine = 30.20;  ?>
-                                                </span>
+                                             <?php echo "<a href=compute-fine.php?return=".$result->BorrowId.">Return Document</a>"; $fine = 30.20;  ?>
+                                            </span>
                                             <?php } else {
                                             echo htmlentities($result->ReturnDate); $fine = 0;
                                         }

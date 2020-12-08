@@ -73,7 +73,7 @@ echo "<script>alert('Invalid Details');</script>";
 <form role="form" method="post">
 
 <div class="form-group">
-<label>Reader ID</label>
+<label>Reader Card Number</label>
 <input class="form-control" type="text" name="username" autocomplete="off" required />
 </div>
  <!---
