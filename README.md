@@ -1,2 +1,2 @@
 # City-Library-Management
-CS 631 City Library Management project
+City Library Management project
