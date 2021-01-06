@@ -114,7 +114,7 @@ header('location:manage-branch.php');
                                             <th>Id</th>
                                             <th>Branch Name</th>
                                             <th>Location</th>
-                                            <th>Action</th>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -128,14 +128,10 @@ if($query->rowCount() > 0)
 foreach($results as $result)
 {               ?>                                      
                                         <tr class="odd gradeX">
-                                            <td class="center"><?php echo htmlentities($result->LibId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->LibName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->Location);?></td>
-                                            <td class="center">
-
-                                         <!--   <a href="edit-author.php?athrid=<?php echo htmlentities($result->id);?>"><button class="btn btn-primary"><i class="fa fa-edit "></i> Edit</button>  -->
-                                          <a href="edit-branch.php?del=<?php echo htmlentities($result->id);?>" onclick="return confirm('Are you sure you want to delete?');"" >  <button class="btn btn-danger"><i class="fa fa-pencil"></i> Delete</button> 
-                                            </td>
+                                            <td class="center"><?php echo htmlentities($result->BID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->LNAME);?></td>
+                                            <td class="center"><?php echo htmlentities($result->LOCATION);?></td>
+                                            
                                         </tr>
  <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>

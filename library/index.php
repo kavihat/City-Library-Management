@@ -15,7 +15,7 @@ if(isset($_POST['login']))
 
 $username=$_POST['username'];
 //$password=md5($_POST['password']);
-$sql ="SELECT ReaderId FROM reader WHERE ReaderId=:username";
+$sql ="SELECT RID FROM reader WHERE RID=:username";
 //$sql ="SELECT ReaderId,MobileNumber FROM reader WHERE ReaderId=:username and MobileNumber=:password";
 $query= $dbh -> prepare($sql);
 $query-> bindParam(':username', $username, PDO::PARAM_STR);

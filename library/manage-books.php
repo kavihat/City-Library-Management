@@ -7,29 +7,47 @@ if(strlen($_SESSION['login'])==0)
 header('location:index.php');
 }
 else{ 
-if(isset($_POST['del']))
+if(isset($_GET['res']))
 {
-$docid=$_GET['del'];
+$docid=$_GET['res'];
 
-$count_my_page = ("reserveid.txt");
-$hits = file($count_my_page);
-$hits[0] ++;
-$fp = fopen($count_my_page , "w");
-fputs($fp , "$hits[0]");
-fclose($fp); 
-$id= $hits[0]; 
+// $count_my_page = ("reserveid.txt");
+// $hits = file($count_my_page);
+// $hits[0] ++;
+// $fp = fopen($count_my_page , "w");
+// fputs($fp , "$hits[0]");
+// fclose($fp); 
+// $id= $hits[0]; 
 
-$sql="INSERT INTO reserve(ReserveId,ReserveDate,ReaderId,DocId,CopyNo,LibId) VALUES(:id,'2019-05-07 18:48:35',1,:docid,1,1)";
+$sql="INSERT INTO reservation(DTIME) VALUES(sysdate())";
+$query = $dbh->prepare($sql);
+$query -> execute();
+$res_id=$dbh->lastInsertId();
+
+$sql="SELECT COPYNO,BID FROM COPY WHERE DOCID=:docid";
+$query = $dbh->prepare($sql);
+$query -> bindParam(':docid',$docid, PDO::PARAM_STR);
+$query -> execute();
+$results=$query->fetchAll(PDO::FETCH_OBJ);
+$copy = 0;
+$bid = 0;
+foreach($results as $result)
+{
+    $copy = $result->COPYNO;
+    $bid = $result->BID;
+}
+echo $res_id;
+$sql="INSERT INTO reserves(RESERVATION_NO,RID,DOCID,COPYNO,BID) VALUES(:id,:rid,:docid,:copyd,:bid)";
 
 $query = $dbh->prepare($sql);
-$query -> bindParam(':id',$id, PDO::PARAM_STR);
+$query -> bindParam(':id',$res_id, PDO::PARAM_STR);
 $query -> bindParam(':docid',$docid, PDO::PARAM_STR);
-//$query -> bindParam(':rid',$rid, PDO::PARAM_STR);
-//$query -> bindParam(':copy',$copy, PDO::PARAM_STR);
-//$query -> bindParam(':libid',$libid, PDO::PARAM_STR);
+$query -> bindParam(':rid',$_SESSION['login'], PDO::PARAM_STR);
+$query -> bindParam(':copyd',$copy, PDO::PARAM_STR);
+$query -> bindParam(':bid',$bid, PDO::PARAM_STR);
 $query -> execute();
 
-$_SESSION['updatemsg']="Document Reserved scuccessfully ";
+$_SESSION['updatemsg']="Document Reserved successfully ";
 header('location:reserve-book.php');
 
 }
@@ -135,7 +153,7 @@ header('location:reserve-book.php');
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT documents.DocId,documents.Title,documents.PubDate,documents.PublisherId,publishers.PubName from documents INNER join publishers on documents.PublisherId = publishers.PubId  ";
+<?php $sql = "SELECT document.DOCID,document.TITLE,document.PDATE,document.PUBLISHERID,publisher.PUBNAME from document INNER join publisher on document.PUBLISHERID = publisher.PUBLISHERID  ";
 //"SELECT documents.DocId,documents.Title,documents.PubDate,documents.PublisherId from documents join publishers on publishers.PubId = documents.PublisherId";
 //"SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId join tblauthors on tblauthors.id=tblbooks.AuthorId";
 $query = $dbh -> prepare($sql);
@@ -147,15 +165,13 @@ if($query->rowCount() > 0)
 foreach($results as $result)
 {               ?>                                      
                                         <tr class="odd gradeX">
-                                            <td class="center"><?php echo htmlentities($result->DocId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->Title);?></td>
-                                            <td class="center"><?php echo htmlentities($result->PubDate);?></td>
-                                            <td class="center"><?php echo htmlentities($result->PublisherId);?></td>
-											<td class="center"><?php echo htmlentities($result->PubName);?></td>
+                                            <td class="center"><?php echo htmlentities($result->DOCID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->TITLE);?></td>
+                                            <td class="center"><?php echo htmlentities($result->PDATE);?></td>
+                                            <td class="center"><?php echo htmlentities($result->PUBLISHERID);?></td>
+											<td class="center"><?php echo htmlentities($result->PUBNAME);?></td>
                                             <td class="center">
-										  <!-- <button type="submit" name="create" class="btn btn-primary">Reserve </button>
-                                             <a href="reserve-book.php?bookid=<?php echo htmlentities($result->DocId);?>"><button class="btn btn-primary"><i class="fa fa-edit "></i> Reserve</button> -->
-                                         <a href="manage-books.php?del=<?php echo htmlentities($result->DocId);?>" onclick="return confirm('Are you sure you want to reserve?');"" >  <button class="btn btn-primary"> Reserve</button> 
+                                         <a href="manage-books.php?res=<?php echo htmlentities($result->DOCID);?>" onclick="return confirm('Are you sure you want to reserve?');" >  <button class="btn btn-primary"> Reserve</button> 
                                             </td> 
                                         </tr>
  <?php $cnt=$cnt+1;}} ?>                                      

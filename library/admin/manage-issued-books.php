@@ -103,7 +103,7 @@ else{
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT * from borrows";
+<?php $sql = "SELECT * from borrows B, BORROWING G WHERE B.BOR_NO = G.BOR_NO ";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -140,20 +140,20 @@ else {
 */
              ?>                                      
                                         <tr class="odd gradeX">
-                                            <td class="center"><?php echo htmlentities($result->BorrowId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->ReaderId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->DocId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->CopyNo);?></td>
-											<td class="center"><?php echo htmlentities($result->LibId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->BorrowDate);?></td>
-                                            <td class="center"><?php if($result->ReturnDate=="")
+                                            <td class="center"><?php echo htmlentities($result->BOR_NO);?></td>
+                                            <td class="center"><?php echo htmlentities($result->RID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->DOCID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->COPYNO);?></td>
+											<td class="center"><?php echo htmlentities($result->BID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->BDTIME);?></td>
+                                            <td class="center"><?php if($result->RDTIME=="")
                                             {
                                                 echo htmlentities("Not Return Yet");
 												$fine = 30.20;
                                             } else {
 
 
-                                            echo htmlentities($result->ReturnDate);
+                                            echo htmlentities($result->RDTIME);
 											$fine = 0;
 }
                                             ?></td>

@@ -18,29 +18,44 @@ fputs($fp , "$hits[0]");
 fclose($fp); 
 $DocId= $hits[0];
 $title=$_POST['title'];
-//$category=$_POST['category'];
 $editorid=$_POST['editorid'];
 $volno=$_POST['volno'];
-$issno=$_POST['issno'];
-$guesteditor=$_POST['guesteditor'];
+$issueno=$_POST['issueno'];
+$scope=$_POST['scope'];
 $pdate=$_POST['pdate'];
 $pubid=$_POST['pubid'];
-$libid=$_POST['libid'];
+$libid=$_POST['bid'];
+$guesteditor=$_POST['pid'];
 //$copies=$_POST['copies'];
-$sql="INSERT INTO documents(DocId,Title,PubDate,PublisherId) VALUES(:DocId,:title,'2019-05-07',:pubid)";
-//$sql="INSERT INTO  journal(DocId,Title,EditorId,VolNo,IssNo,GEditorId,PubDate,PublisherId,LibId) VALUES(:DocId,:title,:editorid,:volno,:issno,:guesteditor,:pdate,:pubid,:libid)";
+
+echo "1 ".$doc_id;
+$sql="INSERT INTO document(Title,PDate,PublisherId) VALUES(:title,:pdate,:pubid)";
 $query = $dbh->prepare($sql);
-$query->bindParam(':DocId',$DocId,PDO::PARAM_STR);
+
 $query->bindParam(':title',$title,PDO::PARAM_STR);
-//$query->bindParam(':editorid',$editorid,PDO::PARAM_STR);
-//$query->bindParam(':volno',$volno,PDO::PARAM_STR);
-//$query->bindParam(':issno',$issno,PDO::PARAM_STR);
-//$query->bindParam(':guesteditor',$guesteditor,PDO::PARAM_STR);
-//$query->bindParam(':pdate',$pdate,PDO::PARAM_STR);
+$query->bindParam(':pdate',$pdate,PDO::PARAM_STR);
 $query->bindParam(':pubid',$pubid,PDO::PARAM_STR);
-//$query->bindParam(':libid',$libid,PDO::PARAM_STR);
-//$query->bindParam(':copies',$copies,PDO::PARAM_STR);
 $query->execute();
+
+$doc_id=$dbh->lastInsertId();
+echo "2 ".$doc_id;
+$sql="INSERT INTO journal_volume(DOCID,VOLUME_NO,EDITOR) VALUES(:DocId,:volno,:editorid)";
+$query = $dbh->prepare($sql);
+$query->bindParam(':DocId',$doc_id,PDO::PARAM_STR);
+$query->bindParam(':volno',$volno,PDO::PARAM_STR);
+$query->bindParam(':editorid',$editorid,PDO::PARAM_STR);
+$query->execute();
+
+$sql="INSERT INTO journal_issue(DOCID,ISSUE_NO,SCOPE) VALUES(:DocId,:issueno,:scope)";
+$query = $dbh->prepare($sql);
+$query->bindParam(':DocId',$doc_id,PDO::PARAM_STR);
+$query->bindParam(':issueno',$issueno,PDO::PARAM_STR);
+$query->bindParam(':scope',$scope,PDO::PARAM_STR);
+$query->execute();
+echo "3 ".$doc_id;
+
+
+
 $lastInsertId = $dbh->lastInsertId();
 if($lastInsertId)
 {
@@ -77,7 +92,6 @@ header('location:manage-books.php');
       <!------MENU SECTION START-->
 <?php include('includes/header.php');?>
 <!-- MENU SECTION END-->
-    <div class="content-wra
     <div class="content-wrapper">
          <div class="container">
         <div class="row pad-botm">
@@ -92,7 +106,7 @@ header('location:manage-books.php');
 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3"">
 <div class="panel panel-info">
 <div class="panel-heading">
-Journal Volume
+Journal
 </div>
 
 <div class="panel-body">
@@ -105,21 +119,7 @@ Journal Volume
 
 <div class="form-group">
 <label>Chief Editor<span style="color:red;">*</span></label>
-<select class="form-control" name="editorid" required="required">
-<option value=""> Select Editor</option>
-<?php 
-
-$sql = "SELECT * from editors";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->EditorId);?>"><?php echo htmlentities($result->EditorName);?></option>
- <?php }} ?> 
+<input class="form-control" type="text" name="editorid" autocomplete="off"  required />
 </select>
 </div>
 
@@ -130,43 +130,25 @@ foreach($results as $result)
 <input class="form-control" type="text" name="volno" autocomplete="off"  required />
 </div>
 
-<div class="row">
-<div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3"">
-<div class="panel panel-info">
-<div class="panel-heading">
-Journal Issue
-</div>
 
-<div class="panel-body">
-<form role="form" method="post">
+
 <div class="form-group">
 <label>Issue Number<span style="color:red;">*</span></label>
-<input class="form-control" type="text" name="issno" autocomplete="off"  required />
+<input class="form-control" type="text" name="issueno" autocomplete="off"  required />
 </div>
 
+
+<div class="form-group">
+<label>Scope<span style="color:red;">*</span></label>
+<input class="form-control" type="text" name="scope" autocomplete="off" />
+</div>
 
 <div class="form-group">
 <label>Guest Editor<span style="color:red;">*</span></label>
-<select class="form-control" name="guesteditor" required="required">
-<option value=""> Select Guest Editor</option>
-<?php 
-
-$sql = "SELECT * from  guesteditors";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->GEditorId);?>"><?php echo htmlentities($result->GEditorName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="guesteditor" required="required">
 </div>
 
-<div class="panel-body">
-<form role="form" method="post">
+
 <div class="form-group">
 <label>Publication Date<span style="color:red;">*</span></label>
 <input class="form-control" type="date" name="pdate" autocomplete="off"  required />
@@ -174,42 +156,12 @@ foreach($results as $result)
 
 <div class="form-group">
 <label> Publisher<span style="color:red;">*</span></label>
-<select class="form-control" name="pubid" required="required">
-<option value=""> Select Publisher</option>
-<?php 
-
-$sql = "SELECT * from  publishers ";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->PubId);?>"><?php echo htmlentities($result->PubName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="pubid" required="required">
 </div>
 
 <div class="form-group">
 <label> Library<span style="color:red;">*</span></label>
-<select class="form-control" name="libid" required="required">
-<option value=""> Select Branch</option>
-<?php 
-
-$sql = "SELECT * from  branch";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->LibId);?>"><?php echo htmlentities($result->LibName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="bid" required="required">
 </div>
 <!--
 <div class="panel-body">

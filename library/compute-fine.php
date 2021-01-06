@@ -19,7 +19,10 @@ else{
     }
     if(isset($_GET['return']))
     {
-        $sql = "delete from borrows where borrows.BorrowId=".$_GET['return'];
+        $sql = "update borrowing set RDTIME=sysdate() where borrowing.BOR_NO=".$_GET['return'];
+        $query = $dbh->prepare($sql);
+        $query -> execute();
+       
     }
 
     ?>
@@ -80,7 +83,7 @@ else{
                                     <tbody>
 <?php 
 $sid=$_SESSION['login'];
-$sql = "SELECT * from borrows where ReaderId=:sid";
+$sql = "SELECT * FROM BORROWS B, BORROWING G WHERE B.BOR_NO=G.BOR_NO AND RID=:sid";
 //$sql="SELECT tblbooks.BookName,tblbooks.ISBNNumber,tblissuedbookdetails.IssuesDate,tblissuedbookdetails.ReturnDate,tblissuedbookdetails.id as rid,tblissuedbookdetails.fine from  tblissuedbookdetails join tblstudents on tblstudents.StudentId=tblissuedbookdetails.StudentId join tblbooks on tblbooks.id=tblissuedbookdetails.BookId where tblstudents.StudentId=:sid order by tblissuedbookdetails.id desc";
 $query = $dbh -> prepare($sql);
 $query-> bindParam(':sid', $sid, PDO::PARAM_STR);
@@ -97,19 +100,25 @@ foreach($results as $result)
 
               ?>                                      
                                         <tr class="odd gradeX">
-                                            <td class="center"><?php echo htmlentities($result->BorrowId);?></td>
+                                            <td class="center"><?php echo htmlentities($result->BOR_NO);?></td>
                                          
-                                            <td class="center"><?php echo htmlentities($result->DocId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->CopyNo);?></td>
-											<td class="center"><?php echo htmlentities($result->LibId);?></td>
-                                            <td class="center"><?php echo htmlentities($result->BorrowDate);?></td>
-                                            <td class="center"><?php if($result->ReturnDate=="")
+                                            <td class="center"><?php echo htmlentities($result->DOCID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->COPYNO);?></td>
+											<td class="center"><?php echo htmlentities($result->BID);?></td>
+                                            <td class="center"><?php echo htmlentities($result->BDTIME);?></td>
+                                           
+                                            <td class="center"><?php if($result->RDTIME=="")
                                             {?>
                                             <span style="color:red">
-                                             <?php echo "<a href=compute-fine.php?return=".$result->BorrowId.">Return Document</a>"; $fine = 30.20;  ?>
+                                             <?php
+                                                $now = time(); 
+                                                $borrow_time = strtotime($result->BDTIME);
+                                                $datediff = $now - $borrow_time;
+                                                $fine=0.2*round($datediff / (60 * 60 * 24));
+                                                echo "<a href=compute-fine.php?return=".$result->BOR_NO.">Return Document</a>";   ?>
                                             </span>
                                             <?php } else {
-                                            echo htmlentities($result->ReturnDate); $fine = 0;
+                                            echo htmlentities($result->RDTIME); $fine = 0;
                                         }
                                             ?></td>
                                               <td class="center"><?php echo htmlentities($fine);?></td>

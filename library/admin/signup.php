@@ -23,7 +23,7 @@ $mobileno=$_POST['mobileno'];
 $address=$_POST['address']; 
 //$password=md5($_POST['password']); 
 //$status=1;
-$sql="INSERT INTO reader(ReaderId,ReaderName,RType,MobileNumber,Address) VALUES(:StudentId,:fname,:type,:mobileno,:address)";
+$sql="INSERT INTO reader(RID,RTYPE,RNAME,RADDRESS,PHONE_NO) VALUES(:StudentId,:type,:fname,:address,:mobileno)";
 $query = $dbh->prepare($sql);
 $query->bindParam(':StudentId',$StudentId,PDO::PARAM_STR);
 $query->bindParam(':fname',$fname,PDO::PARAM_STR);
@@ -132,7 +132,7 @@ error:function (){}
 <option value=""> Select Type</option>
 <?php 
 
-$sql = "SELECT * from type ";
+$sql = "SELECT RTYPE from READER ";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -141,7 +141,7 @@ if($query->rowCount() > 0)
 {
 foreach($results as $result)
 {               ?>  
-<option value="<?php echo htmlentities($result->TypeName);?>"><?php echo htmlentities($result->TypeName);?></option>
+<option value="<?php echo htmlentities($result->RTYPE);?>"><?php echo htmlentities($result->RTYPE);?></option>
  <?php }} ?> 
 </select>
 </div>

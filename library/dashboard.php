@@ -49,7 +49,7 @@ else{?>
                             <i class="fa fa-bars fa-5x"></i>
 <?php 
 $sid=$_SESSION['login'];
-$sql1 ="SELECT BorrowId from borrows where ReaderID=:sid";
+$sql1 ="SELECT BOR_NO from borrows where RID=:sid";
 $query1 = $dbh -> prepare($sql1);
 $query1->bindParam(':sid',$sid,PDO::PARAM_STR);
 $query1->execute();
@@ -70,7 +70,7 @@ $issuedbooks=$query1->rowCount();
 <?php 
 $sid=$_SESSION['login'];
 $rsts=NULL;
-$sql2 ="SELECT BorrowId from borrows where ReaderID=:sid and ReturnDate=:rsts";
+$sql2 ="SELECT BOR_NO from borrows b, borrowing g where b.bor_no=g.bor_no and b.RID=:sid and g.RDTIME IS :rsts";
 $query2 = $dbh -> prepare($sql2);
 $query2->bindParam(':sid',$sid,PDO::PARAM_STR);
 $query2->bindParam(':rsts',$rsts,PDO::PARAM_STR);

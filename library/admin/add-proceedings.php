@@ -10,14 +10,8 @@ else{
 
 if(isset($_POST['add']))
 {
-$count_my_page = ("documentid.txt");
-$hits = file($count_my_page);
-$hits[0] ++;
-$fp = fopen($count_my_page , "w");
-fputs($fp , "$hits[0]");
-fclose($fp); 
-$DocId= $hits[0];
 $title=$_POST['title'];
+echo "1";
 //$category=$_POST['category'];
 $editorid=$_POST['editorid'];
 //$date=$_POST['date'];
@@ -25,20 +19,30 @@ $location=$_POST['location'];
 $pdate=$_POST['pdate'];
 $pubid=$_POST['pubid'];
 $libid=$_POST['libid'];
+echo "2";
 //$copies=$_POST['copies'];
-$sql="INSERT INTO documents(DocId,Title,PubDate,PublisherId) VALUES(:DocId,:title,'2019-05-07',:pubid)";
-//$sql="INSERT INTO proceedings(DocId,Title,CEditorId,CLocation,PubDate,PublisherId,LibId) VALUES(:DocId,:title,:editorid,:location,:pdate,:pubid,:libid)";
+$sql="INSERT INTO document(Title,PDate,PublisherId) VALUES(:title,:pdate,:pubid)";
 $query = $dbh->prepare($sql);
-$query->bindParam(':DocId',$DocId,PDO::PARAM_STR);
 $query->bindParam(':title',$title,PDO::PARAM_STR);
-//$query->bindParam(':editorid',$editorid,PDO::PARAM_STR);
-//$query->bindParam(':date',$date,PDO::PARAM_STR);
-//$query->bindParam(':location',$location,PDO::PARAM_STR);
-//$query->bindParam(':pdate',$pdate,PDO::PARAM_STR);
+$query->bindParam(':pdate',$pdate,PDO::PARAM_STR);
 $query->bindParam(':pubid',$pubid,PDO::PARAM_STR);
-//$query->bindParam(':libid',$libid,PDO::PARAM_STR);
-//$query->bindParam(':copies',$copies,PDO::PARAM_STR);
 $query->execute();
+$doc_id=$dbh->lastInsertId();
+echo "3 ".$doc_id;
+
+$sql="INSERT INTO proceedings(DocId,CDATE,CLOCATION,CEDITOR) VALUES(:DocId,sysdate(),:location,:editorid)";
+
+$query = $dbh->prepare($sql);
+$query->bindParam(':DocId',$doc_id,PDO::PARAM_STR);
+$query->bindParam(':location',$location,PDO::PARAM_STR);
+$query->bindParam(':editorid',$editorid,PDO::PARAM_STR);
+$query->execute();
+echo "4 ".$doc_id;
+
+
+
+
+
 $lastInsertId = $dbh->lastInsertId();
 if($lastInsertId)
 {
@@ -75,7 +79,6 @@ header('location:manage-books.php');
       <!------MENU SECTION START-->
 <?php include('includes/header.php');?>
 <!-- MENU SECTION END-->
-    <div class="content-wra
     <div class="content-wrapper">
          <div class="container">
         <div class="row pad-botm">
@@ -102,22 +105,7 @@ Proceedings Info
 
 <div class="form-group">
 <label> Editor<span style="color:red;">*</span></label>
-<select class="form-control" name="editorid" required="required">
-<option value=""> Select Editor</option>
-<?php 
-
-$sql = "SELECT * from confeditors ";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->CEditorId);?>"><?php echo htmlentities($result->CEditorName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="editorid" required="required">
 </div>
 
 
@@ -135,42 +123,12 @@ foreach($results as $result)
 
 <div class="form-group">
 <label> Publisher<span style="color:red;">*</span></label>
-<select class="form-control" name="pubid" required="required">
-<option value=""> Select Publisher</option>
-<?php 
-
-$sql = "SELECT * from publishers";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->PubId);?>"><?php echo htmlentities($result->PubName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="pubid" required="required">
 </div>
 
 <div class="form-group">
 <label> Library<span style="color:red;">*</span></label>
-<select class="form-control" name="libid" required="required">
-<option value=""> Select Branch</option>
-<?php 
-
-$sql = "SELECT * from branch";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>  
-<option value="<?php echo htmlentities($result->LibId);?>"><?php echo htmlentities($result->LibName);?></option>
- <?php }} ?> 
-</select>
+<input class="form-control" name="libid" required="required">
 </div>
  
  
